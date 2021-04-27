@@ -72,9 +72,15 @@ public class app {
 //        System.out.println("mat = " + mat.dump()+"\n"+x.dump());
 
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        //new InsertImage().run("C:\\Users\\osama\\Desktop\\multimedia\\black.png",conn,8,"black","");
-        new SearchImage().hist("C:\\Users\\osama\\Desktop\\multimedia\\black.png",conn);
-    }
+        //new InsertImage().run("C:\\Users\\osama\\Desktop\\multimedia\\sunflower6.jpg",conn,12,"sunflower6","");
+        //new SearchImage().hist("C:\\Users\\osama\\Desktop\\multimedia\\sunflower4.jpg",conn);
+        //new SearchImage().mean("C:\\Users\\osama\\Desktop\\multimedia\\sunflower4.jpg" , conn ) ;
+        new SearchImage().grid("C:\\Users\\osama\\Desktop\\multimedia\\sunflower4.jpg" , conn,2,2 ) ;
+
+        //Mat x=Mat.eye(4 ,4,CV_8UC1);
+        //System.out.println(new SearchImage().getMean(x));
+
+        }
 
 }
 
