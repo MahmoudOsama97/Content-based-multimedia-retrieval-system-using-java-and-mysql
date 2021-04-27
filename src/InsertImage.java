@@ -46,7 +46,16 @@ class InsertImage {
 
 
     }
-    public void run(String args ,Connection conn,int id,String title,String info) throws SQLException {
+
+
+    static String insertbackslash(String s){
+        int index=0;
+        while(true){
+           index= s.indexOf("\\",index);
+        }
+
+    }
+    public void run(String args , Connection conn, int id, String title, String info) throws SQLException {
 
         //String filename = args.length > 0 ? args[0] : "C:\\Users\\osama\\Desktop\\multimedia\\download.jpg";
         String filename= args ;
@@ -57,14 +66,14 @@ class InsertImage {
         }
         String Q="";
         try {
-          Q = "insert into images(id,title,url,info) values("+ id + ", " + "\""+title+ "\"" + ", " + "\""+args+ "\""  + ", " +  "\""+info+ "\""+ ")" ;
+            Q = "insert into images(id,title,url,info) values("+ id + ", " + "\""+title+ "\"" + ", " + "\""+args.replace("\\", "\\\\") + "\""  + ", " +  "\""+info+ "\""+ ")" ;
             System.out.println(Q);
-          Statement stmt = conn.createStatement();
-          stmt.executeUpdate(Q);
-      }catch (SQLException ex) {
-          System.out.println("shit ");
-          System.out.println(ex.getMessage());
-      }
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate(Q);
+        }catch (SQLException ex) {
+            System.out.println("shit ");
+            System.out.println(ex.getMessage());
+        }
 
 
         List<Mat> bgrPlanes = new ArrayList<>();
@@ -90,8 +99,8 @@ class InsertImage {
 
         for (int i=0;i<16;i++){
             // take  16 consecutive elements from the orginal matrix of 256 element
-           Mat temp= rHist.submat( 16*i,16*i+15,0,1 );
-           //sum the 16 element
+            Mat temp= rHist.submat( 16*i,16*i+15,0,1 );
+            //sum the 16 element
             Scalar sum = Core.sumElems(temp);
             //insert the sum val in the 16 element mat
             rHist16.put(i,0, sum.val);
@@ -159,5 +168,5 @@ class InsertImage {
 //        HighGui.imshow( "calcHist Demo", histImage );
 //        HighGui.waitKey(0);
 //        System.exit(0);
-  }
+    }
 }

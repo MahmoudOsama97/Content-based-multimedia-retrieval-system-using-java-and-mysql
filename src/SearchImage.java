@@ -46,17 +46,22 @@ public class SearchImage {
         Core.split(src, bgrPlanes);
         int size= src.size(0)*src.size(1);
         int number_of_blocks=size/(width*height);
-        int wStep=(src.size(0)/width);
-        int hStep=(src.size(1)/height);
+        int wStep=(src.size(1)/width);
+        int hStep=(src.size(0)/height);
          List<Mat> tempSrcR = new ArrayList<Mat>();
          List<Mat> tempSrcG = new ArrayList<Mat>();
          List<Mat> tempSrcB = new ArrayList<Mat>();
 
-        for( int w =0;w<src.size(0);w+=wStep){
-            for( int h =0;h<src.size(1);h+=hStep){
-                tempSrcR.add(bgrPlanes.get(0).submat(w,(w+wStep),h,(h+hStep)));
-                tempSrcG.add(bgrPlanes.get(1).submat(w,(w+wStep),h,(h+hStep)));
-                tempSrcB.add(bgrPlanes.get(2).submat(w,(w+wStep),h,(h+hStep)));
+        for( int w =0;w<((src.size(1)/width)*width);w+=wStep){
+            for( int h =0;h<((src.size(0)/height)*height);h+=hStep){
+//                System.out.println(bgrPlanes.get(0).size());
+//                //System.out.println(bgrPlanes.get(0).size(0));
+//
+//                System.out.println(w);
+//                System.out.println(h);
+                tempSrcR.add(bgrPlanes.get(0).submat(h,(h+hStep),w,(w+wStep)));
+                tempSrcG.add(bgrPlanes.get(1).submat(h,(h+hStep),w,(w+wStep)));
+                tempSrcB.add(bgrPlanes.get(2).submat(h,(h+hStep),w,(w+wStep)));
             }
         }
 
@@ -65,6 +70,7 @@ public class SearchImage {
         ResultSet R= stmt.executeQuery(Q);
         while(R.next()){
 
+            int c=0;
            String modelUrl= R.getString("url");
             Mat model = Imgcodecs.imread(modelUrl);
             if (model.empty()) {
@@ -73,32 +79,32 @@ public class SearchImage {
             }
 
             List<Mat> bgrPlanesModel = new ArrayList<>();
-            Core.split(src, bgrPlanesModel);
+            Core.split(model, bgrPlanesModel);
             int sizeM= model.size(0)*model.size(1);
-            int number_of_blocksM=size/(width*height);
-            int wStepM=(model.size(0)/width);
-            int hStepM=(model.size(1)/height);
+            int number_of_blocksM=sizeM/(width*height);
+            int wStepM=(model.size(1)/width);
+            int hStepM=(model.size(0)/height);
             //List<Mat> tempModel= new ArrayList<Mat>();
             Mat tempMR,tempMG,tempMB, tempSR,tempSG,tempSB;
             int counter=0;
             int counter_blocks=0;
-            for( int w =0;w<src.size(0);w+=wStep){
-                for( int h =0;h<src.size(1);h+=hStep){
+            for( int w =0;w<(model.size(1)/width)*width;w+=wStepM){
+                for( int h =0;h<(model.size(0)/height)*height;h+=hStepM){
 
-                    tempMR=(bgrPlanesModel.get(0).submat(w,(w+wStep),h,(h+hStep)));
-                    tempMG=(bgrPlanesModel.get(1).submat(w,(w+wStep),h,(h+hStep)));
-                    tempMB=(bgrPlanesModel.get(2).submat(w,(w+wStep),h,(h+hStep)));
+                    tempMR=(bgrPlanesModel.get(0).submat(h,(h+hStepM),w,(w+wStepM)));
+                    tempMG=(bgrPlanesModel.get(1).submat(h,(h+hStepM),w,(w+wStepM)));
+                    tempMB=(bgrPlanesModel.get(2).submat(h,(h+hStepM),w,(w+wStepM)));
 
-                    counter++;
                     tempSR=tempSrcR.get(counter);
                     tempSG=tempSrcG.get(counter);
                     tempSB=tempSrcB.get(counter);
+                    counter++;
 
                     double meanred  =Math.abs(getMean(tempMR)-getMean(tempSR));
                     double meangreen=Math.abs(getMean(tempMG)-getMean(tempSG));
                     double meanblue =Math.abs(getMean(tempMB)-getMean(tempSB));
 
-                    if((meanred<=0.1*getMean(tempSR))&&(meangreen<=0.1*getMean(tempSG))&&(meanblue<=0.1*getMean(tempSB))){
+                    if((meanred<=0.2*getMean(tempSR))&&(meangreen<=0.2*getMean(tempSG))&&(meanblue<=0.2*getMean(tempSB))){
 
                         counter_blocks++;
                     }
@@ -107,8 +113,15 @@ public class SearchImage {
 
                 }
             }
-            if(counter_blocks>=number_of_blocks/2){
-                System.out.println(R.getString("title"));
+            System.out.println(counter_blocks);
+            if(counter_blocks>=(width+height)/2){
+                String s=R.getString("url");
+                Mat p = Imgcodecs.imread(s);
+                HighGui.imshow( " image"+String.valueOf(c), p );
+                HighGui.waitKey(1000);
+
+                c++;
+                //break;
             }
 
         }
@@ -165,7 +178,7 @@ public class SearchImage {
                   System.out.println(R.getString("title"));
 
               } else{
-                  System.out.println(" 555 atfo");
+                  System.out.println(" atfo");
 
 
             }
@@ -178,7 +191,7 @@ public class SearchImage {
     }
 
 
-    public void hist(String args ,Connection conn) throws SQLException {
+    public void hist(String args ,Connection conn,float compare) throws SQLException {
 
         //String filename = args.length > 0 ? args[0] : "C:\\Users\\osama\\Desktop\\multimedia\\download.jpg";
         String filename= args ;
@@ -240,31 +253,42 @@ public class SearchImage {
         ResultSet R = stmt.executeQuery(Q);
         int tempRI,tempGI,tempBI,tempRM,tempGM,tempBM;
         float sum=0,value=0;
-        while(R.next()){
-            for( int i=0; i <16;i++) {
-                tempRM=R.getInt(i+3);
-                tempGM=R.getInt(i+19);
-                tempBM=R.getInt(i+35);
+        int counter=0;
+        while(R.next()) {
+            for (int i = 0; i < 16; i++) {
+                tempRM = R.getInt(i + 3);
+                tempGM = R.getInt(i + 19);
+                tempBM = R.getInt(i + 35);
                 //System.out.println(tempRM);
                 //System.out.println(tempGM);
                 //System.out.println(tempBM);
 
-                tempRI= ((int)rHist16.get(i,0)[0]);
-                tempGI= ((int)gHist16.get(i,0)[0]);
-                tempBI= ((int)bHist16.get(i,0)[0]);
+                tempRI = ((int) rHist16.get(i, 0)[0]);
+                tempGI = ((int) gHist16.get(i, 0)[0]);
+                tempBI = ((int) bHist16.get(i, 0)[0]);
                 //System.out.println(tempRI);
                 //System.out.println(tempGM);
                 //System.out.println(tempBM);
 
-                sum=sum+Math.min(tempRI,tempRM)+Math.min(tempGI,tempGM)+Math.min(tempBI,tempBM);
+                sum = sum + Math.min(tempRI, tempRM) + Math.min(tempGI, tempGM) + Math.min(tempBI, tempBM);
                 //System.out.println(sum);
             }
-            value=sum/(3*(R.getInt("pixel")));
-            System.out.println(value);
-            sum=0;
-            //HighGui.imshow( "Source image", src );
-            //break;
+            value = sum / (3 * (R.getInt("pixel")));
+            if (value > compare) {
+                counter++;
+                //  System.out.println(value);
+                String s = R.getString("url");
+                Mat p = Imgcodecs.imread(s);
+                HighGui.imshow(" image" + String.valueOf(counter), p);
+                HighGui.waitKey(1000);
+
+                //break;
+            }
+            sum = 0;
+
         }
+
+        System.out.println(counter);
 
 
     }

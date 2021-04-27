@@ -7,7 +7,7 @@
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -22,9 +22,25 @@ import static org.opencv.core.CvType.*;
 
 public class app {
 
+    private static int id=0;
 
 
 
+    public static void PushDataBase(File[] files,Connection conn, String name) throws SQLException {
+        for (File file : files) {
+
+            if (file.isDirectory()) {
+                System.out.println("Directory: " + file.getAbsolutePath());
+                String name2=file.getName();
+                PushDataBase(file.listFiles(), conn, name2); // Calls same method again.
+            } else {
+                new InsertImage().run(file.getAbsolutePath(),conn,
+                        id,name+ String.valueOf(id), "");
+                id++;
+                System.out.println("File: " + file.getAbsolutePath());
+            }
+        }
+    }
     public static void main(String[] args) throws SQLException {
         // Declaring all variables
         String jdbcDriver = "com.mysql.cj.jdbc.Driver";
@@ -72,13 +88,16 @@ public class app {
 //        System.out.println("mat = " + mat.dump()+"\n"+x.dump());
 
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        //new InsertImage().run("C:\\Users\\osama\\Desktop\\multimedia\\sunflower6.jpg",conn,12,"sunflower6","");
-        //new SearchImage().hist("C:\\Users\\osama\\Desktop\\multimedia\\sunflower4.jpg",conn);
+        //new InsertImage().run("C:\\Users\\osama\\Desktop\\multimedia\\min.jpg",conn,3,"minions","");
+        //new SearchImage().hist("C:\\Users\\osama\\Desktop\\multimedia\\sunflower1.jpg",conn,  0.6f);
         //new SearchImage().mean("C:\\Users\\osama\\Desktop\\multimedia\\sunflower4.jpg" , conn ) ;
-        new SearchImage().grid("C:\\Users\\osama\\Desktop\\multimedia\\sunflower4.jpg" , conn,2,2 ) ;
+        new SearchImage().grid("C:\\Users\\osama\\Desktop\\multimedia\\daisy1.jpg" , conn,3,3 ) ;
 
         //Mat x=Mat.eye(4 ,4,CV_8UC1);
         //System.out.println(new SearchImage().getMean(x));
+
+        //File dir = new File("C:\\Users\\osama\\Desktop\\multimedia\\flowers");
+        //PushDataBase(dir.listFiles(), conn,"flower");
 
         }
 
