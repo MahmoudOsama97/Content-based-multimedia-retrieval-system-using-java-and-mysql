@@ -267,8 +267,8 @@ public class SearchImage {
                 tempGI = ((int) gHist16.get(i, 0)[0]);
                 tempBI = ((int) bHist16.get(i, 0)[0]);
                 //System.out.println(tempRI);
-                //System.out.println(tempGM);
-                //System.out.println(tempBM);
+                //System.out.println(tempGI);
+                //System.out.println(tempBI);
 
                 sum = sum + Math.min(tempRI, tempRM) + Math.min(tempGI, tempGM) + Math.min(tempBI, tempBM);
                 //System.out.println(sum);

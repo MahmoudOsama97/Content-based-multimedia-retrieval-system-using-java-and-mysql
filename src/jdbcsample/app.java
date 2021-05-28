@@ -91,66 +91,19 @@ public class app {
         //new InsertImage().run("C:\\Users\\osama\\Desktop\\multimedia\\min.jpg",conn,3,"minions","");
         //new SearchImage().hist("C:\\Users\\osama\\Desktop\\multimedia\\sunflower1.jpg",conn,  0.6f);
         //new SearchImage().mean("C:\\Users\\osama\\Desktop\\multimedia\\sunflower4.jpg" , conn ) ;
-        new SearchImage().grid("C:\\Users\\osama\\Desktop\\multimedia\\daisy1.jpg" , conn,3,3 ) ;
+        //new SearchImage().grid("C:\\Users\\osama\\Desktop\\multimedia\\daisy1.jpg" , conn,3,3 ) ;
+        //new InsertVideo().run("C:\\Users\\osama\\Desktop\\multimedia\\video5.mp4",conn,5,"video5","");
+        new SearchVideo().Search("C:\\Users\\osama\\Desktop\\multimedia\\video4.mp4",conn);
+
+
+
+
 
         //Mat x=Mat.eye(4 ,4,CV_8UC1);
         //System.out.println(new SearchImage().getMean(x));
-
         //File dir = new File("C:\\Users\\osama\\Desktop\\multimedia\\flowers");
         //PushDataBase(dir.listFiles(), conn,"flower");
 
         }
 
 }
-
-
-/*
-        try {
-            // Output sql query for checking if the database exists
-            System.out.println("Check if database exists query - " + checkDb);
-            stmt = conn.createStatement();
-            rs = stmt.executeQuery(checkDb);
-            // Output the resultset value
-            System.out.println("Result Set Value " + rs.next());
-            //Move the cursor one row from its current position
-            if (rs.next()) {
-                //If the database is found in the information_schema, set the boolean value to true
-                dbFound = true;
-            }
-
-            //If the database is no found create new database
-        } catch (SQLException ex) {
-            System.out.println("Error " + ex.getMessage());
-        }
-
-
-*/
-
-
-
-
-//public class app {
-//    public static void main(String[] args) {
-//        // Load the native OpenCV library
-//        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-//        new CalcHist().run(args);
-//
-//    }
-//}
-
-/*
-public class app {
-    public static void main(String[] args) {
-        // Load the native OpenCV library
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        String[] x=new String[3];
-
-        x[0]="C:\\Users\\osama\\Desktop\\multimedia\\download.jpg";
-        x[1]="C:\\Users\\osama\\Desktop\\multimedia\\meme.jpg";
-        x[2]="C:\\Users\\osama\\Desktop\\multimedia\\min.jpg";
-
-        new CompareHist().run(x);
-    }
-}
-
- */
