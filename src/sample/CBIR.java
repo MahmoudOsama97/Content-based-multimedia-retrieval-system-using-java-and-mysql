@@ -21,11 +21,12 @@ import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
- import java.util.Vector;
-
+import java.util.Vector;
 
 public class CBIR {
-
+    /*
+       Responsible for displaying the GUI of CBIR system.
+    */
     private static Vector<String> resultVec = new Vector<String>();
     private static int start = 0;
     private static final int imagesPerView = 8;
@@ -33,6 +34,9 @@ public class CBIR {
     private static final FlowPane flowPane = new FlowPane();
     private static String searchImagePath = "";
     public static void display (Connection conn) throws FileNotFoundException {
+        /*
+           Main method. Displays the GUI of the CBVR system.
+        */
         Stage primaryStage = new Stage();
         primaryStage.initModality(Modality.APPLICATION_MODAL);
         primaryStage.setTitle("CBIR System");
@@ -92,18 +96,11 @@ public class CBIR {
             } else if (newValue.equals("Color Layout")) {
                 attributeL.setText("# Blocks");
                 hAttribute.setVisible(true);
-               // loading.setVisible(true);
             } else {
                 hAttribute.setVisible(false);
             }
 
         });
-
-
-
-
-
-
 
         File imageFile = new File(imagesPath+"test0.jpg");
         ImageView imageView = new ImageView(new Image(new FileInputStream(imageFile)));
@@ -116,11 +113,7 @@ public class CBIR {
         buttonAddToDb.setPrefWidth(100);
         Button buttonSearch = new Button("Search");
         buttonSearch.setPrefWidth(100);
-
-
-
-
-
+     
         buttonUpload.setOnAction(e -> {
             try {
                 fileChooser.getExtensionFilters().add(extFilter);
@@ -129,7 +122,7 @@ public class CBIR {
                     imageView.setImage(new Image(new FileInputStream(image)));
                     searchImagePath = image.getAbsolutePath();
                 } else {
-                    createErrorAlert("Error Uploding Image!");
+                    createErrorAlert("Error Uploading Image!");
                 }
             } catch (Exception exception) {
                 exception.printStackTrace();
@@ -142,8 +135,6 @@ public class CBIR {
                 title[0] =titleT.getText();
                 info[0] =infoT.getText();
                 if (!title[0].equals("")) {
-                    System.out.println(title[0]);
-                    System.out.println(info[0]);
                     try {
                         new InsertImage().run(searchImagePath,conn,title[0],info[0]);
                     } catch (SQLException throwables) {
@@ -160,7 +151,6 @@ public class CBIR {
                 String searchTech = searchOptions.getValue();
                 if(searchTech.equals("Global Mean")) {
                     try {
-                        //System.out.println(resultVec.size());
                         resultVec.clear();
                         start=0;
                         resultVec = new SearchImage().mean(searchImagePath , conn );
@@ -194,10 +184,7 @@ public class CBIR {
                         try {
                             start=0;
                             resultVec.clear();
-
-                            System.out.println("444444444444444444444444444444");
                             resultVec = SearchImage.grid(searchImagePath, conn, n_blocks, n_blocks);
-
                             if (resultVec.isEmpty()) {
                                 createErrorAlert("No image was found!");
                             }
@@ -221,7 +208,6 @@ public class CBIR {
             } else {
                 createErrorAlert("Enter image to search!");
             }
-
         });
 
         vControl.setPadding(new Insets(5, 5, 5, 5));
@@ -244,7 +230,6 @@ public class CBIR {
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
-            //System.out.println("Button - clicked");
         });
         buttonPlus.setOnAction(e -> {
             modifyStart(true);
@@ -253,7 +238,6 @@ public class CBIR {
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
-            //System.out.println("Button + clicked");
         });
 
         hViewer.getChildren().add(buttonMinus);
@@ -275,6 +259,9 @@ public class CBIR {
     }
 
     private static void initFlowPane() {
+        /*
+           Initialize the place where the result images will be placed.
+        */
         flowPane.setPadding(new Insets(5, 5, 5, 5));
         flowPane.setVgap(5);
         flowPane.setHgap(25);
@@ -285,6 +272,9 @@ public class CBIR {
         flowPane.setStyle("-fx-background-color: DAE6F3;");
     }
     public static void addFlowPane(String[] imagesNames) throws FileNotFoundException {
+        /*
+           Adds a place to put the result images are displayed. 
+        */
         flowPane.getChildren().clear();
         ImageView[] images = getImages(imagesNames);
         for (int i=0; i<imagesPerView; i++) {
@@ -293,29 +283,38 @@ public class CBIR {
         }
     }
     private static ImageView[] getImages(String[] imagesNames) throws FileNotFoundException {
+        /*
+           Returns the image view in which the images will fit.
+        */
         ImageView[] pages = new ImageView[imagesPerView];
         int i = 0;
         for (String imageName: imagesNames) {
-            //System.out.println(imageName);
             if (imageName == null) continue;
             ImageView imageView = new ImageView(new Image(new FileInputStream(imageName)));
-
             imageView.setFitHeight(150);
             imageView.setFitWidth(150);
             pages[i] = imageView;
             i++;
         }
         return pages;
-      }
+    }
 
     private static String[] getImagesNames(Vector <String> vectorRes, int start) {
-        return  Arrays.copyOfRange( vectorRes.toArray(new String[vectorRes.size()]), start, start + imagesPerView);
-
+        /*
+           Gets the names of the result images so the system could display them. 
+        */
+        return  Arrays.copyOfRange(vectorRes.toArray(new String[vectorRes.size()]), start, start + imagesPerView);
     }
     private static int getMaxFileCount() {
+        /*
+           Gets the count of files in the returned vector of images.
+        */
         return resultVec.size();
     }
     private static void modifyStart(boolean increment) {
+        /*
+           Modifies the start pointer to point on the next group of picture to be displayed.
+        */
         if (increment) {
             if (!((start + imagesPerView) >= getMaxFileCount())) {
                 start += imagesPerView;
@@ -323,21 +322,15 @@ public class CBIR {
         } else {
             if (!((start - imagesPerView) <= 0)) {
                 start -= imagesPerView;
-            }else{
+            } else {
                 start=0;
             }
         }
     }
-    private static Alert createLoadingAlert() {
-        ProgressIndicator indicator = new ProgressIndicator();
-        Alert loading = new Alert(Alert.AlertType.INFORMATION);
-        loading.setHeaderText("Loading");
-        HBox H=new HBox();
-        H.getChildren().add(indicator);
-        loading.getDialogPane().setContent(H);
-        return loading;
-    }
     private static void createErrorAlert(String message) {
+        /*
+           Creates error modal in case of error.
+        */
         Alert errorAlert = new Alert(Alert.AlertType.ERROR);
         errorAlert.setHeaderText("Error");
         errorAlert.setContentText(message);
