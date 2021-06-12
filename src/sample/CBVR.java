@@ -13,22 +13,22 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import javax.swing.text.Style;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Vector;
 
 public class CBVR {
+    /*
+        The main class that displays the GUI of CBVR system.
+    */
     private static Vector<String> resultVec = new Vector<String>();
     public static int start = 0;
     private static final int videosPerView = 1;
@@ -37,6 +37,9 @@ public class CBVR {
     private static final HBox hVideos = new HBox();
     private static String searchVideoPath = "";
     public static void display (Connection conn) throws Exception {
+        /*
+            The main method that displays the GUI of the CBVR System.
+        */
         Stage primaryStage = new Stage();
         primaryStage.initModality(Modality.APPLICATION_MODAL);
         primaryStage.setTitle("CBVR System");
@@ -54,15 +57,15 @@ public class CBVR {
         hUploadedMedia.setSpacing(20);
         hUploadedMedia.setAlignment(Pos.CENTER);
 
-        HBox hTitle= new HBox();
+        HBox hTitle = new HBox();
         HBox hInfo = new HBox();
         HBox hCompare = new HBox();
-        Label titleL=new Label("Title");
+        Label titleL = new Label("Title");
         Label infoL = new Label("Info");
-        Label compareL =new Label("Threshold");
-        TextField titleT=new TextField ();
-        TextField infoT=new TextField ();
-        TextField compareT= new TextField();
+        Label compareL = new Label("Threshold");
+        TextField titleT = new TextField ();
+        TextField infoT = new TextField ();
+        TextField compareT = new TextField();
         hTitle.getChildren().addAll(titleL,titleT);
         hTitle.setAlignment(Pos.CENTER_RIGHT);
         hInfo.getChildren().addAll(infoL,infoT);
@@ -74,7 +77,7 @@ public class CBVR {
         hCompare.setSpacing(10);
         final String[] title = {null};
         final String[] info = {null};
-        final String[] compareRatio ={null};
+        final String[] compareRatio = {null};
 
         VBox videoControls = new VBox();
         videoControls.setPadding(new Insets(5, 5, 5, 5));
@@ -127,8 +130,8 @@ public class CBVR {
             if (searchVideoPath.equals("")){
                 createErrorAlert("No video was uploaded!");
             } else {
-                title[0] =titleT.getText();
-                info[0] =infoT.getText();
+                title[0] = titleT.getText();
+                info[0] = infoT.getText();
                 if (title[0].equals("")) {
                     createErrorAlert("You must input a title!");
                 } else {
@@ -174,7 +177,6 @@ public class CBVR {
                     try {
                         start=0;
                         resultVec.clear();
-                        //System.out.println(title[0]);
                         resultVec = new SearchVideo().Search(searchVideoPath, conn, Float.parseFloat(compareRatio[0]));
                     } catch (SQLException throwables) {
                         createErrorAlert("No video is found!");
@@ -264,8 +266,6 @@ public class CBVR {
         });
 
         initHVideos();
-
-
         Button buttonMinus = new Button("<<");
         Button buttonPlus = new Button(">>");
         buttonMinus.setFont(Font.font ("Verdana", 18));
@@ -286,8 +286,7 @@ public class CBVR {
                 if(viewer.getMediaPlayer()==null) {
                     continue;
                 }
-                    viewer.getMediaPlayer().dispose();
-
+                viewer.getMediaPlayer().dispose();
                 viewer.setMediaPlayer(minusPlayers[minusI]);
                 minusI += 1;
             }
@@ -313,7 +312,7 @@ public class CBVR {
         });
 
         vbox.getChildren().addAll(hUploadedMedia, hViewer, hViewerButtons);
-        Scene scene = new Scene(vbox,900, 700);
+        Scene scene = new Scene(vbox, 900, 700);
         primaryStage.setScene(scene);
         primaryStage.setOnCloseRequest(e -> {
             uploadMediaView.getMediaPlayer().dispose();
@@ -329,17 +328,20 @@ public class CBVR {
         primaryStage.showAndWait();
     }
     private static void initHVideos() {
+        /*
+            Initializes the place where the result videos are placed.
+        */
         hVideos.setAlignment(Pos.CENTER);
         hVideos.setSpacing(20);
         hVideos.setPadding(new Insets(5, 5, 5, 5));
         if (hVideos.getChildren().isEmpty())
         {
-            if( videosPerView==1){
+            if(videosPerView==1){
                 MediaView left = new MediaView();
                 left.setFitWidth(300);
                 left.setFitHeight(300*9/16);
                 hVideos.getChildren().addAll( left);
-            }else {
+            } else {
                 MediaView left = new MediaView();
                 MediaView right = new MediaView();
                 left.setFitWidth(300);
@@ -350,24 +352,35 @@ public class CBVR {
             }
         }
     }
-    private static MediaPlayer[] getVideos( String[] videosNames) throws FileNotFoundException {
+    private static MediaPlayer[] getVideos(String[] videosNames) throws FileNotFoundException {
+        /*
+            Gets the media players that contains the result videos from video names
+        */
         MediaPlayer[] players = new MediaPlayer[videosPerView];
         int i = 0;
         for (String videoName: videosNames) {
             if (videoName == null) continue;
-            players[i] = new MediaPlayer(new Media(new File(  videoName).toURI().toString()));
+            players[i] = new MediaPlayer(new Media(new File(videoName).toURI().toString()));
             i++;
         }
         return players;
     }
     private static String[] getVideosNames(Vector <String> vectorRes, int start) {
-        return  Arrays.copyOfRange( vectorRes.toArray(new String[vectorRes.size()]), start, start + videosPerView);
-
+        /*
+            Gets the names of the result videos from the returned vector of results returned from the DB.
+        */
+        return  Arrays.copyOfRange(vectorRes.toArray(new String[vectorRes.size()]), start, start + videosPerView);
     }
     private static int getMaxFileCount() {
+        /*
+            Gets the count of the videos in the returned vector.
+        */
         return resultVec.size();
     }
     private static void modifyStart(boolean increment) {
+        /*
+            Modifies the start pointer to point on the next group of videos of the returned vector of videos.
+        */
         if (increment) {
             if (!((start + videosPerView) >= getMaxFileCount())) {
                 start += videosPerView;
@@ -375,12 +388,15 @@ public class CBVR {
         } else {
             if (!((start - videosPerView) <= 0)) {
                 start -= videosPerView;
-            }else{
-                start=0;
+            } else {
+                start = 0;
             }
         }
     }
     private static void createErrorAlert(String message) {
+        /*
+            Creates an error modal in case of error.
+        */
         Alert errorAlert = new Alert(Alert.AlertType.ERROR);
         errorAlert.setHeaderText("Error");
         errorAlert.setContentText(message);
