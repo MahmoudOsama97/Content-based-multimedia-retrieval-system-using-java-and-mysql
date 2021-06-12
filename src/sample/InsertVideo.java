@@ -21,15 +21,28 @@ public class InsertVideo {
 
     String framesPath="C:\\Users\\osama\\Desktop\\multimedia\\frames";
 
-    public void run(String args, Connection conn, int id, String title, String info) throws SQLException {
+    public void run(String args, Connection conn, String title, String info) throws SQLException {
 
         Mat frame = new Mat();
         VideoCapture camera = new VideoCapture(args);
 
 
         String Q="";
+        ResultSet R = null;
         try {
-            Q = "insert into videos(id,title,url,info) values("+ id + ", " + "\""+title+ "\"" + ", " + "\""+args.replace("\\", "\\\\") + "\""  + ", " +  "\""+info+ "\""+ ")" ;
+            Q = "select max(id) from images ;" ;
+            System.out.println(Q);
+            Statement stmt = conn.createStatement();
+            R = stmt.executeQuery(Q);
+        }catch (SQLException ex) {
+            System.out.println("shit ");
+            System.out.println(ex.getMessage());
+        }
+        int idMaxV=0;
+        if(R.next()) {
+            idMaxV = R.getInt(1);
+        }        try {
+            Q = "insert into videos(id,title,url,info) values("+ String.valueOf(idMaxV+1) + ", " + "\""+title+ "\"" + ", " + "\""+args.replace("\\", "\\\\") + "\""  + ", " +  "\""+info+ "\""+ ")" ;
             System.out.println(Q);
             Statement stmt = conn.createStatement();
             stmt.executeUpdate(Q);
@@ -43,7 +56,7 @@ public class InsertVideo {
         Mat frameGrey = new Mat();
         int count=0;
 
-        ResultSet R = null;
+         R = null;
 
         try {
             Q = "select max(id) from images ;" ;
@@ -101,7 +114,7 @@ public class InsertVideo {
                     new InsertImage().run(ImagePath,conn,title+"_"+String.valueOf(count+1),info);
 
                     try {
-                        Q = "update images set videoId= "+String.valueOf(id)+" where id="+String.valueOf(idMax+count+1) ;
+                        Q = "update images set videoId= "+String.valueOf(idMax+1)+" where id="+String.valueOf(idMax+count+1) ;
                         System.out.println(Q);
                         Statement stmt = conn.createStatement();
                          stmt.executeUpdate(Q);

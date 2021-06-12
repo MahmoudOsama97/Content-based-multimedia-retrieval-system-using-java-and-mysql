@@ -14,6 +14,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Vector;
 
 import static org.opencv.core.CvType.CV_16UC1;
 
@@ -41,7 +42,8 @@ public class SearchVideo {
 
     }
 
-    public void Search(String args , Connection conn) throws SQLException {
+    public Vector<String> Search(String args , Connection conn, float compare) throws SQLException {
+        Vector<String> vec = new Vector<String>();
         int x=0;
         String Q = "";
         Mat frame = new Mat();
@@ -89,8 +91,8 @@ public class SearchVideo {
                 if (threshold > 15) {
                     Imgcodecs.imwrite("C:\\Users\\osama\\Desktop\\multimedia\\test"+String.valueOf(x)+".jpg",frame);
                     x++;
-                    HighGui.imshow("frame", frame);
-                    HighGui.waitKey(100);
+//                    HighGui.imshow("frame", frame);
+//                    HighGui.waitKey(100);
                     count++;
                 }
 
@@ -98,7 +100,7 @@ public class SearchVideo {
             else {
                 for(int i=0;i<x;i++) {
                     Mat src = Imgcodecs.imread("C:\\Users\\osama\\Desktop\\multimedia\\test"+String.valueOf(i)+".jpg");
-                    HighGui.imshow("frame", src);
+//                    HighGui.imshow("frame", src);
 
                     keyFrames.add(src);
                     //System.out.println(keyFrames.get(i).size());
@@ -119,7 +121,6 @@ public class SearchVideo {
         //System.out.println(Q);
         while(R.next()){
             int videoId= R.getInt("id");
-            System.out.println(videoId);
             Q="select * from images where videoId = "+String.valueOf(videoId);
             //System.out.println(Q);
             Statement stmt2 = conn.createStatement();
@@ -156,21 +157,23 @@ public class SearchVideo {
                    if(mean<=0.002){
 
                        Count2++;
+
                    }
 
                 }
 
             }
-            System.out.println((Count2*1.0/(QueryKeyFrames.size()+keyFrames.size())));
-            if((Count2*1.0/(QueryKeyFrames.size()+keyFrames.size()))>=0.5){
-                System.out.println("wslt"+String.valueOf(videoId));
+            //if((Count2*1.0/(QueryKeyFrames.size()+keyFrames.size()))>=compare*10){
+            if((Count2*1.0/(QueryKeyFrames.size()))>=compare){
+
+                String s = R.getString("url");
+                vec.add(s);
             }
             Count2=0;
         }
 
-        //System.out.println("count  "+ String.valueOf(Count2));
 
-
+    return vec;
 
     }
 }
