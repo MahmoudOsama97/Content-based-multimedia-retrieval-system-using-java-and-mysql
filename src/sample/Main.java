@@ -1,8 +1,5 @@
-/*
- * How To Connect To Mysql Database In Java Using Netbeans And Create New Database Jdbc
- */
-//package connecttoserverandcreatedataba
-/*
+
+
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -20,7 +17,64 @@ import java.util.logging.Logger;
 import static org.opencv.core.CvType.*;
 
 
-public class app {
+
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import sample.CBIR;
+import sample.CBVR;
+import sample.InsertImage;
+import sample.SearchImage;
+
+import java.io.FileInputStream;
+
+public class Main extends Application {
+    static Connection conn = null;
+    String logoPath = "C:\\Users\\osama\\Desktop\\multimedia\\";
+    @Override
+    public void start(Stage primaryStage) throws Exception{
+        VBox vbox = new VBox();
+        vbox.setPadding(new Insets(200, 0, 0, 0));
+        vbox.setAlignment(Pos.CENTER);
+        vbox.setSpacing(15);
+        StackPane stackPane = new StackPane();
+        ImageView logo = new ImageView(new Image(new FileInputStream(logoPath + "test0.jpg")));
+        logo.setFitWidth(400);
+        logo.setFitHeight(400);
+        Button buttonCbir = new Button("CBIR System");
+        Button buttonCbvr = new Button("CBVR System");
+
+        buttonCbir.setPrefWidth(125);
+        buttonCbvr.setPrefWidth(125);
+
+        buttonCbir.setOnAction(e -> {
+            try{
+                CBIR.display(conn);
+            } catch (Exception exception) {
+                System.out.println(exception);
+            }
+        });
+        buttonCbvr.setOnAction(e -> {
+            try{
+                CBVR.display(conn);
+            } catch (Exception exception) {
+                System.out.println(exception);
+            }
+        });
+        vbox.getChildren().addAll(buttonCbir, buttonCbvr);
+        stackPane.getChildren().addAll(logo, vbox);
+        Scene scene = new Scene(stackPane, 400, 400);
+        primaryStage.setTitle("Multimedia Project");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
 
     private static int id=0;
 
@@ -34,8 +88,7 @@ public class app {
                 String name2=file.getName();
                 PushDataBase(file.listFiles(), conn, name2); // Calls same method again.
             } else {
-                new InsertImage().run(file.getAbsolutePath(),conn,
-                        id,name+ String.valueOf(id), "");
+                new InsertImage().run(file.getAbsolutePath(),conn,name+ String.valueOf(id), "");
                 id++;
                 System.out.println("File: " + file.getAbsolutePath());
             }
@@ -44,7 +97,6 @@ public class app {
     public static void main(String[] args) throws SQLException {
         // Declaring all variables
         String jdbcDriver = "com.mysql.cj.jdbc.Driver";
-        Connection conn = null;
         String username = "root";
         String password = "MySQL_2021";
         String serverUrl = "jdbc:mysql://localhost:3306/multimedia";
@@ -73,8 +125,11 @@ public class app {
             System.out.println(ex.getMessage());
 
         }
+        System.load("C:\\Users\\osama\\Downloads\\opencv\\build\\java\\x64\\opencv_java452.dll");
 
+        //new SearchImage().mean("C:\\Users\\osama\\Desktop\\multimedia\\sunflower4.jpg" , conn ) ;
 
+        launch(args);
 
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         //new InsertImage().run("C:\\Users\\osama\\Desktop\\multimedia\\min.jpg",conn,3,"minions","");
@@ -82,13 +137,12 @@ public class app {
         //new SearchImage().mean("C:\\Users\\osama\\Desktop\\multimedia\\sunflower4.jpg" , conn ) ;
         //new SearchImage().grid("C:\\Users\\osama\\Desktop\\multimedia\\daisy1.jpg" , conn,3,3 ) ;
         //new InsertVideo().run("C:\\Users\\osama\\Desktop\\multimedia\\video5.mp4",conn,5,"video5","");
-        new SearchVideo().Search("C:\\Users\\osama\\Desktop\\multimedia\\video10.mp4",conn);
+        //new SearchVideo().Search("C:\\Users\\osama\\Desktop\\multimedia\\video10.mp4",conn);
 
 
 
 
 
-        }
+    }
 
 }
-*/
