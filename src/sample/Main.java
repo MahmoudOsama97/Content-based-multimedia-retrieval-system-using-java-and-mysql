@@ -1,6 +1,3 @@
-
-
-
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -15,8 +12,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.opencv.core.CvType.*;
-
-
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -50,7 +45,6 @@ public class Main extends Application {
         logo.setFitHeight(400);
         Button buttonCbir = new Button("CBIR System");
         Button buttonCbvr = new Button("CBVR System");
-
         buttonCbir.setPrefWidth(125);
         buttonCbvr.setPrefWidth(125);
 
@@ -77,9 +71,6 @@ public class Main extends Application {
     }
 
     private static int id=0;
-
-
-
     public static void PushDataBase(File[] files,Connection conn, String name) throws SQLException {
         for (File file : files) {
 
@@ -126,23 +117,7 @@ public class Main extends Application {
 
         }
         System.load("C:\\Users\\osama\\Downloads\\opencv\\build\\java\\x64\\opencv_java452.dll");
-
-        //new SearchImage().mean("C:\\Users\\osama\\Desktop\\multimedia\\sunflower4.jpg" , conn ) ;
-
         launch(args);
-
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        //new InsertImage().run("C:\\Users\\osama\\Desktop\\multimedia\\min.jpg",conn,3,"minions","");
-        //new SearchImage().hist("C:\\Users\\osama\\Desktop\\multimedia\\sunflower1.jpg",conn,  0.6f);
-        //new SearchImage().mean("C:\\Users\\osama\\Desktop\\multimedia\\sunflower4.jpg" , conn ) ;
-        //new SearchImage().grid("C:\\Users\\osama\\Desktop\\multimedia\\daisy1.jpg" , conn,3,3 ) ;
-        //new InsertVideo().run("C:\\Users\\osama\\Desktop\\multimedia\\video5.mp4",conn,5,"video5","");
-        //new SearchVideo().Search("C:\\Users\\osama\\Desktop\\multimedia\\video10.mp4",conn);
-
-
-
-
-
     }
-
 }
