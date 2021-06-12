@@ -116,7 +116,7 @@ public class SearchImage {
 
                 }
             }
-            //System.out.println(counter_blocks);
+            System.out.println(counter_blocks);
             if(counter_blocks>=(width+height)/2){
                 String title=R.getString("title");
                 if(!title.contains("video")) {

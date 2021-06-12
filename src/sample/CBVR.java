@@ -46,6 +46,8 @@ public class CBVR {
         vbox.setAlignment(Pos.CENTER);
 
         FileChooser fileChooser = new FileChooser();
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("videos", "*.mp4");
+
         fileChooser.setTitle("Choose Video");
 
         HBox hUploadedMedia = new HBox();
@@ -74,6 +76,10 @@ public class CBVR {
         final String[] info = {null};
         final String[] compareRatio ={null};
 
+        VBox videoControls = new VBox();
+        videoControls.setPadding(new Insets(5, 5, 5, 5));
+        videoControls.setSpacing(10);
+        videoControls.setAlignment(Pos.CENTER_RIGHT);
         VBox uploadControls = new VBox();
         uploadControls.setPadding(new Insets(5, 5, 5, 5));
         uploadControls.setSpacing(10);
@@ -92,9 +98,8 @@ public class CBVR {
         buttonStop.setPrefWidth(100);
         Button buttonSearch = new Button("Search");
         buttonSearch.setPrefWidth(100);
-        uploadControls.getChildren().addAll(buttonUpload, hTitle, hInfo, buttonAddToDb, hCompare, buttonSearch, buttonPlay, buttonPause, buttonMute, buttonStop);
-
-
+        videoControls.getChildren().addAll(buttonPlay, buttonPause, buttonMute, buttonStop);
+        uploadControls.getChildren().addAll(buttonUpload, hTitle, hInfo, buttonAddToDb, hCompare, buttonSearch);
 
         MediaView uploadMediaView = new MediaView(new MediaPlayer(new Media(videosURI + "video2.mp4")));
         uploadMediaView.setPreserveRatio(true);
@@ -102,33 +107,41 @@ public class CBVR {
 
         buttonUpload.setOnAction(e -> {
             try {
+                fileChooser.getExtensionFilters().add(extFilter);
                 File video = fileChooser.showOpenDialog(primaryStage);
-                uploadMediaView.getMediaPlayer().dispose();
-                uploadMediaView.setMediaPlayer(new MediaPlayer(new Media(video.toURI().toString())));
-                searchVideoPath = video.getAbsolutePath();
+                if (uploadMediaView.getMediaPlayer() != null) {
+                    uploadMediaView.getMediaPlayer().dispose();
+                    if(video != null) {
+                        uploadMediaView.setMediaPlayer(new MediaPlayer(new Media(video.toURI().toString())));
+                    } else {
+                        createErrorAlert("Error Uploading File!");
+                    }
+                }
+                searchVideoPath = video != null? video.getAbsolutePath(): "";
             } catch (Exception exception) {
+                createErrorAlert("Error Uploading File!");
                 exception.printStackTrace();
             }
         });
         buttonAddToDb.setOnAction(e -> {
             if (searchVideoPath.equals("")){
-                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-                errorAlert.setHeaderText("Error");
-                errorAlert.setContentText("No video was uploaded!");
-                errorAlert.showAndWait();
+                createErrorAlert("No video was uploaded!");
             } else {
-
                 title[0] =titleT.getText();
                 info[0] =infoT.getText();
-                System.out.println(title[0]);
-                System.out.println(info[0]);
+                if (title[0].equals("")) {
+                    createErrorAlert("You must input a title!");
+                } else {
+                    System.out.println(title[0]);
+                    System.out.println(info[0]);
 
-                try {
-                    new InsertVideo().run(searchVideoPath,conn,title[0],info[0]);
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
+                    try {
+                        new InsertVideo().run(searchVideoPath,conn,title[0],info[0]);
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                    System.out.println("Added To DB!");
                 }
-                System.out.println("Added To DB!");
             }
         });
         buttonPlay.setOnAction(e -> {
@@ -151,32 +164,40 @@ public class CBVR {
             uploadMediaView.getMediaPlayer().stop();
         });
         buttonSearch.setOnAction(e -> {
-
-            try {
-                start=0;
-                resultVec.clear();
-                compareRatio[0] =compareT.getText();
-                //System.out.println(title[0]);
-                resultVec=new SearchVideo().Search(searchVideoPath, conn, Float.parseFloat(compareRatio[0]));
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
-            MediaPlayer[] players;
-            try{
-                players = getVideos(getVideosNames(resultVec, start));
-                int i = 0;
-                MediaView[] viewers= hVideos.getChildren().toArray(new MediaView[0]);
-                for (MediaView viewer: viewers) {
-                    viewer.setMediaPlayer(players[i]);
-                    i += 1;
+            if (searchVideoPath.equals("")){
+                createErrorAlert("No video was uploaded!");
+            } else {
+                compareRatio[0] = compareT.getText();
+                if (compareRatio[0].equals("")) {
+                    createErrorAlert("Enter Threshold!");
+                } else {
+                    try {
+                        start=0;
+                        resultVec.clear();
+                        //System.out.println(title[0]);
+                        resultVec = new SearchVideo().Search(searchVideoPath, conn, Float.parseFloat(compareRatio[0]));
+                    } catch (SQLException throwables) {
+                        createErrorAlert("No video is found!");
+                        throwables.printStackTrace();
+                    }
+                    MediaPlayer[] players;
+                    try{
+                        players = getVideos(getVideosNames(resultVec, start));
+                        int i = 0;
+                        MediaView[] viewers= hVideos.getChildren().toArray(new MediaView[0]);
+                        for (MediaView viewer: viewers) {
+                            viewer.setMediaPlayer(players[i]);
+                            i += 1;
+                        }
+                    }
+                    catch (Exception exception) {
+                        exception.printStackTrace();
+                    }
                 }
-            }
-            catch (Exception exception) {
-                exception.printStackTrace();
             }
         });
 
-        hUploadedMedia.getChildren().addAll(uploadControls, uploadMediaView);
+        hUploadedMedia.getChildren().addAll(uploadControls, uploadMediaView, videoControls);
 
         HBox hViewer = new HBox();
         hViewer.setSpacing(20);
@@ -198,31 +219,47 @@ public class CBVR {
         viewerButtonPlay.setOnAction(e -> {
             MediaView[] viewers= hVideos.getChildren().toArray(new MediaView[0]);
             for (MediaView viewer: viewers) {
-                viewer.getMediaPlayer().play();
+                if (viewer.getMediaPlayer() == null) {
+                    createErrorAlert("No video to play!");
+                } else {
+                    viewer.getMediaPlayer().play();
+                }
             }
         });
         viewerButtonPause.setOnAction(e -> {
             MediaView[] viewers= hVideos.getChildren().toArray(new MediaView[0]);
             for (MediaView viewer: viewers) {
-                viewer.getMediaPlayer().pause();
+                if (viewer.getMediaPlayer() == null) {
+                    createErrorAlert("No video to pause!");
+                } else {
+                    viewer.getMediaPlayer().pause();
+                }
             }
         });
         viewerButtonMute.setOnAction(e -> {
             MediaView[] viewers= hVideos.getChildren().toArray(new MediaView[0]);
             for (MediaView viewer: viewers) {
-                if (viewer.getMediaPlayer().isMute()) {
-                    viewer.getMediaPlayer().setMute(false);
-                    viewerButtonMute.setText("Mute");
-                } else if (!viewer.getMediaPlayer().isMute()) {
-                    viewer.getMediaPlayer().setMute(true);
-                    viewerButtonMute.setText("Unmute");
+                if (viewer.getMediaPlayer() == null) {
+                    createErrorAlert("No video to mute!");
+                } else {
+                    if (viewer.getMediaPlayer().isMute()) {
+                        viewer.getMediaPlayer().setMute(false);
+                        viewerButtonMute.setText("Mute");
+                    } else if (!viewer.getMediaPlayer().isMute()) {
+                        viewer.getMediaPlayer().setMute(true);
+                        viewerButtonMute.setText("Unmute");
+                    }
                 }
             }
         });
         viewerButtonStop.setOnAction(e -> {
             MediaView[] viewers= hVideos.getChildren().toArray(new MediaView[0]);
             for (MediaView viewer: viewers) {
-                viewer.getMediaPlayer().stop();
+                if (viewer.getMediaPlayer() == null) {
+                    createErrorAlert("No video");
+                } else {
+                    viewer.getMediaPlayer().stop();
+                }
             }
         });
 
@@ -282,6 +319,10 @@ public class CBVR {
             uploadMediaView.getMediaPlayer().dispose();
             MediaView[] closedViewers= hVideos.getChildren().toArray(new MediaView[0]);
             for (MediaView viewer: closedViewers) {
+                MediaPlayer player = viewer.getMediaPlayer();
+                if(player == null){
+                    continue;
+                }
                 viewer.getMediaPlayer().dispose();
             }
         });
@@ -338,5 +379,11 @@ public class CBVR {
                 start=0;
             }
         }
+    }
+    private static void createErrorAlert(String message) {
+        Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+        errorAlert.setHeaderText("Error");
+        errorAlert.setContentText(message);
+        errorAlert.showAndWait();
     }
 }

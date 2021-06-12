@@ -37,7 +37,7 @@ import java.io.FileInputStream;
 
 public class Main extends Application {
     static Connection conn = null;
-    String logoPath = "C:\\Users\\osama\\Desktop\\multimedia\\";
+    String logoPath = "C:\\Users\\osama\\Desktop\\multimedia\\images\\";
     @Override
     public void start(Stage primaryStage) throws Exception{
         VBox vbox = new VBox();
@@ -45,7 +45,7 @@ public class Main extends Application {
         vbox.setAlignment(Pos.CENTER);
         vbox.setSpacing(15);
         StackPane stackPane = new StackPane();
-        ImageView logo = new ImageView(new Image(new FileInputStream(logoPath + "test0.jpg")));
+        ImageView logo = new ImageView(new Image(new FileInputStream(logoPath + "logo.png")));
         logo.setFitWidth(400);
         logo.setFitHeight(400);
         Button buttonCbir = new Button("CBIR System");
