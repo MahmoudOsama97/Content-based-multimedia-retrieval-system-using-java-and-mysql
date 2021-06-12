@@ -27,7 +27,6 @@ class InsertImage {
             sumR+= i*((int)rHist.get(i,0)[0]);
             sumG+= i*((int)gHist.get(i,0)[0]);
             sumB+= i*((int)bHist.get(i,0)[0]);
-
         }
         meanR=sumR/(pixel);
         meanG=sumG/(pixel);
@@ -43,17 +42,12 @@ class InsertImage {
             //System.out.println("shit ");
             System.out.println(ex.getMessage());
         }
-
-
     }
-
-
     static String insertbackslash(String s){
         int index=0;
         while(true){
            index= s.indexOf("\\",index);
         }
-
     }
     public void run(String args , Connection conn, int id, String title, String info) throws SQLException {
 
@@ -74,8 +68,6 @@ class InsertImage {
             System.out.println("shit ");
             System.out.println(ex.getMessage());
         }
-
-
         List<Mat> bgrPlanes = new ArrayList<>();
         Core.split(src, bgrPlanes);
         int histSize = 256;
@@ -92,8 +84,6 @@ class InsertImage {
         Mat bHist16 =Mat.zeros(16,1,CV_16UC1);
 
         meanQuery( conn , src, rHist, gHist, bHist,id);
-
-
 
         Q ="update images set" ;
 
@@ -129,7 +119,6 @@ class InsertImage {
             Q +=" green"+start+"_"+end+ "=" +valueG+" ,"  ;
             Q +=" blue"+start+"_"+end+ "=" +valueB;
             if(i!=15)Q+=" ,";
-
         }
         Q +=" where id="+id;
         System.out.println(Q);
@@ -140,9 +129,5 @@ class InsertImage {
             System.out.println("shit ");
             System.out.println(ex.getMessage());
         }
-
-
-
-
     }
 }
